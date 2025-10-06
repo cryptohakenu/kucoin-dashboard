@@ -1,384 +1,96 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KuCoin Live Dashboard</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #38bdf8;
+    }
+    table {
+      margin: 30px auto;
+      border-collapse: collapse;
+      width: 80%;
+      background: #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #334155;
+    }
+    th {
+      background: #0ea5e9;
+      color: white;
+    }
+    tr:hover {
+      background: #334155;
+    }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!doctype html&gt;</p>
-<p class="p1">&lt;html lang="tr"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;KuCoin Real-time Dashboard (WebSocket)&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body { font-family: Arial, sans-serif; background:#f5f7fa; color:#1f2937; margin:0; padding:16px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.container { max-width:1200px; margin:0 auto; background:#fff; padding:14px; border-radius:8px; box-shadow:0 6px 18px rgba(15,23,42,0.06); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>header { display:flex; align-items:center; justify-content:space-between; gap:12px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>h1 { font-size:18px; margin:0; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.controls { margin:12px 0; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>input[type="number"] { width:100px; padding:6px; border-radius:6px; border:1px solid #e5e7eb; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>table { width:100%; border-collapse:collapse; margin-top:8px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>thead th { text-align:left; padding:8px; border-bottom:1px solid #e6e6e6; font-size:13px; color:#374151; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>tbody td { padding:8px; border-bottom:1px dashed #f1f5f9; vertical-align:middle; font-size:13px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.small-canvas { width:120px; height:30px; display:block; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status { font-size:13px; color:#6b7280; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.green { color:#059669; } .red { color:#ef4444; }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;header&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h1&gt;KuCoin Real-time Dashboard (WebSocket)&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="status" id="status"&gt;Bağlantı: &lt;strong id="connState"&gt;Hazır&lt;/strong&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>Yenileme (ms): &lt;input id="interval" type="number" value="1000" min="200" step="100" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>Gösterilecek coin sayısı: &lt;input id="limit" type="number" value="200" min="10" max="1000" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button id="restartBtn"&gt;WebSocket Yeniden Başlat&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="margin-left:auto; font-size:13px; color:#6b7280;"&gt;Not: Tarayıcı doğrudan KuCoin'e bağlanır. Public token 24 saat geçerli.&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;table id="ticker-table" aria-live="polite"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;Symbol&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;Last&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;Change%&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;BestBid / BestAsk&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;Vol (last size)&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;th&gt;Spark&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;tbody&gt;&lt;/tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">(async function(){</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// ---------- CONFIG ----------</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const BULLET_PUBLIC = "https://api.kucoin.com/api/v1/bullet-public"; // public spot token</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const TOPIC_ALL = "/market/ticker:all";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const MAX_HISTORY = 40; // sparkline için kaç değer saklansın</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// ----------------------------</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const statusEl = document.getElementById("connState");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const tableBody = document.querySelector("#ticker-table tbody");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const intervalInput = document.getElementById("interval");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const limitInput = document.getElementById("limit");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const restartBtn = document.getElementById("restartBtn");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>let ws = null;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let charts = {};</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let historyMap = {}; // { symbol: [prices...] }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let rowsMap = {}; // { symbol: trElement }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let recvBuffer = {}; // optional, we can buffer messages until render tick</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let renderTimer = null;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let renderInterval = parseInt(intervalInput.value) || 1000;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// helpers</p>
-<p class="p1"><span class="Apple-converted-space">  </span>function setStatus(txt, cls) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>statusEl.textContent = txt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>statusEl.className = cls ? cls : "";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function formatNum(n, maxFrac=6) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (n === null || n === undefined || isNaN(n)) return "-";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// show up to 6 decimal places for small numbers, else integer-like</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (Math.abs(n) &gt;= 1) return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>return Number(n).toLocaleString(undefined, {maximumFractionDigits: maxFrac});</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function createRowIfMissing(sym) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (rowsMap[sym]) return rowsMap[sym];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const tr = document.createElement("tr");</p>
-<p class="p1"><span class="Apple-converted-space">    </span>tr.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="sym"&gt;${sym}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="last"&gt;-&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="chg"&gt;-&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="bbba"&gt;-&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="vol"&gt;-&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;td class="spark"&gt;&lt;canvas id="c_${sym.replace(/[^a-zA-Z0-9]/g,'_')}" class="small-canvas"&gt;&lt;/canvas&gt;&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// append at end</p>
-<p class="p1"><span class="Apple-converted-space">    </span>tableBody.appendChild(tr);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>rowsMap[sym] = tr;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>return tr;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Chart.js small-line factory</p>
-<p class="p1"><span class="Apple-converted-space">  </span>function createOrUpdateChart(sym, dataArr) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const canvasId = `c_${sym.replace(/[^a-zA-Z0-9]/g,'_')}`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const canvas = document.getElementById(canvasId);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (!canvas) return;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const ctx = canvas.getContext('2d');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (charts[canvasId]) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>charts[canvasId].data.datasets[0].data = dataArr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>charts[canvasId].update('none');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>charts[canvasId] = new Chart(ctx, {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>type: 'line',</p>
-<p class="p1"><span class="Apple-converted-space">        </span>data: {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>labels: dataArr.map((_,i)=&gt;i),</p>
-<p class="p1"><span class="Apple-converted-space">          </span>datasets: [{</p>
-<p class="p1"><span class="Apple-converted-space">            </span>data: dataArr,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>borderWidth: 1,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>pointRadius: 0,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>tension: 0.35,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>borderColor: '#3b82f6' // Chart.js default color; you can change</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}]</p>
-<p class="p1"><span class="Apple-converted-space">        </span>},</p>
-<p class="p1"><span class="Apple-converted-space">        </span>options: {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>responsive: false,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>animation: false,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>maintainAspectRatio: false,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>scales: { x: { display: false }, y: { display: false } },</p>
-<p class="p1"><span class="Apple-converted-space">          </span>plugins: { legend: { display: false }, tooltip: { enabled: false } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Render loop (batched render)</p>
-<p class="p1"><span class="Apple-converted-space">  </span>function startRenderLoop() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (renderTimer) clearInterval(renderTimer);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>renderInterval = parseInt(intervalInput.value) || 1000;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>renderTimer = setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// render buffer</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const keys = Object.keys(recvBuffer);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// sort by vol or unchanged? we will render all but limit displayed</p>
-<p class="p1"><span class="Apple-converted-space">      </span>keys.sort((a,b) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const av = parseFloat(recvBuffer[a]?.data?.size || 0);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const bv = parseFloat(recvBuffer[b]?.data?.size || 0);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return bv - av;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const limit = parseInt(limitInput.value) || 200;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const sliced = keys.slice(0, limit);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// clear table and reappend in sorted order for deterministic ordering</p>
-<p class="p1"><span class="Apple-converted-space">      </span>tableBody.innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>sliced.forEach(sym =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const pkt = recvBuffer[sym];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const data = pkt.data;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const price = parseFloat(data.price);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const bestBid = parseFloat(data.bestBid);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const bestAsk = parseFloat(data.bestAsk);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const size = parseFloat(data.size);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// history</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!historyMap[sym]) historyMap[sym] = [];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const h = historyMap[sym];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>h.push(price);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (h.length &gt; MAX_HISTORY) h.shift();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const tr = createRowIfMissing(sym);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tr.querySelector(".last").textContent = formatNum(price);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const change = pkt._changePercent;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const chgEl = tr.querySelector(".chg");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (change !== undefined) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>chgEl.textContent = (change&gt;=0?"+":"") + change.toFixed(2) + "%";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>chgEl.className = "chg " + (change&gt;=0? "green":"red");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>chgEl.textContent = "-";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tr.querySelector(".bbba").textContent = `${formatNum(bestBid)}/${formatNum(bestAsk)}`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tr.querySelector(".vol").textContent = formatNum(size, 6);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// create canvas if needed then chart</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tableBody.appendChild(tr); // reappend in new order</p>
-<p class="p1"><span class="Apple-converted-space">        </span>createOrUpdateChart(sym, h);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>}, renderInterval);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Build WS connect URL by fetching bullet-public</p>
-<p class="p1"><span class="Apple-converted-space">  </span>async function getWsUrlAndToken() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// KuCoin expects POST to /api/v1/bullet-public for public token</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const resp = await fetch(BULLET_PUBLIC, { method: "POST" });</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const json = await resp.json();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const data = json?.data;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!data) throw new Error("No data in bullet-public response");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// pick first server</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const server = (data.instanceServers &amp;&amp; data.instanceServers[0]) || null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!server) throw new Error("No instanceServers returned");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const endpoint = server.endpoint; // e.g. wss://ws-api-spot.kucoin.com/endpoint</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const token = data.token;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// connectId random</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const connectId = "ck_" + Math.random().toString(36).slice(2,10);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const wsUrl = endpoint + "?token=" + encodeURIComponent(token) + "&amp;connectId=" + connectId;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return { wsUrl, pingInterval: server?.pingInterval || 10000 };</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} catch (err) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>console.error("bullet-public error:", err);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>throw err;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Start websocket and subscribe</p>
-<p class="p1"><span class="Apple-converted-space">  </span>async function startWs() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setStatus("Token alınıyor...", "");</p>
-<p class="p1"><span class="Apple-converted-space">    </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const info = await getWsUrlAndToken();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>setStatus("WS bağlantısı kuruluyor...", "");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ws = new WebSocket(info.wsUrl);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>ws.onopen = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("WS açık, abone olunuyor...", "");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// subscribe to all tickers</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const subMsg = {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>id: Date.now(),</p>
-<p class="p1"><span class="Apple-converted-space">          </span>type: "subscribe",</p>
-<p class="p1"><span class="Apple-converted-space">          </span>topic: TOPIC_ALL,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>response: true</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ws.send(JSON.stringify(subMsg));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// send ping periodically if needed (KuCoin requires ping/pong)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// also the server may send ping requests; handle in onmessage</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("Abone olundu. Veri akışı bekleniyor...", "green");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>ws.onmessage = (evt) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const msg = JSON.parse(evt.data);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>// message types: welcome, ping, message, etc.</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (msg.type === "welcome") {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// initial handshake</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// console.log("welcome");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (msg.type === "ping") {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// reply pong</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ws.send(JSON.stringify({ id: Date.now(), type: "pong" }));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (msg.type === "message" &amp;&amp; msg.topic &amp;&amp; msg.data) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// msg.data may contain fields; for /market/ticker:all msg.data is an array? docs show object</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// For /market/ticker:all, KuCoin pushes ticker list; but often msg.data is single ticker object with symbol-based data</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// We'll handle both array and single object</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (Array.isArray(msg.data)) {</p>
-<p class="p1"><span class="Apple-converted-space">              </span>msg.data.forEach(d =&gt; handleTickerMessage(d));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">              </span>handleTickerMessage(msg.data);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} catch (e) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>console.error("ws msg parse err", e, evt.data);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>ws.onclose = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("WS kapandı. Yeniden bağlanmak için 'Yeniden Başlat' butonunu kullan.", "red");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>ws.onerror = (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>console.error("WS error", e);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("WS hata: konsolu kontrol et.", "red");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// keepalive ping from client side each 10s (safe)</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let pingTimer = setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (ws &amp;&amp; ws.readyState === WebSocket.OPEN) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>try { ws.send(JSON.stringify({ id: Date.now(), type: "ping" })); } catch(e){}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}, 10000);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// cleanup on manual restart</p>
-<p class="p1"><span class="Apple-converted-space">      </span>restartBtn.onclick = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (ws) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ws.close();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ws = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>clearInterval(pingTimer);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(()=&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>historyMap = {}; rowsMap = {}; recvBuffer = {}; charts = {};</p>
-<p class="p1"><span class="Apple-converted-space">          </span>tableBody.innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>start();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}, 350);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>} catch (err) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>setStatus("Token/WS hatası: " + (err.message || err), "red");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>console.error(err);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// handle single ticker object; structure per docs: { sequence, price, size, bestAsk, bestAskSize, bestBid, bestBidSize, symbol, time }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>function handleTickerMessage(obj) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (!obj) return;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// if the msg is a snapshot containing 'ticker' field, handle</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const data = obj.ticker ? obj.ticker : obj;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const symbol = data.symbol || data.sequence ? (data.symbol || data.symbol) : null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const sym = data.symbol || data.symbol || (data.s &amp;&amp; data.s) || null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// KuCoin's ticker object uses 'symbol' like "BTC-USDT" or field name might be 'symbol' or 'symbol' present; fallback to data.productId?</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const symbolFinal = data.symbol || data.symbol || data.symbol || data.s || data.symbol || null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// In practice KuCoin uses "symbol" property like "BTC-USDT". We'll attempt to get it robustly:</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const finalSym = data.symbol || data.symbol || data.symbol || data.s || data.symbol || data.symbol || data.productId || data.symbol || null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// But usually data has 'symbol', use that:</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const S = data.symbol || data.symbol || data.symbol || data.s || data.productId || data.symbol;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (!S) return;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const price = parseFloat(data.price || data.last || data.p) || 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const bestBid = parseFloat(data.bestBid || data.bestBid) || 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const bestAsk = parseFloat(data.bestAsk || data.bestAsk) || 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const size = parseFloat(data.size || data.size) || 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// compute short change% vs last history</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const hist = historyMap[S] || [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let changePercent = undefined;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (hist.length &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const prev = hist[hist.length - 1];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (prev &amp;&amp; prev &gt; 0) changePercent = ((price - prev) / prev) * 100;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} catch(e){}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// put into buffer keyed by symbol</p>
-<p class="p1"><span class="Apple-converted-space">    </span>recvBuffer[S] = { data: { price, bestBid, bestAsk, size, symbol: S }, _lastPrice: price, _changePercent: changePercent || 0 };</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// start process</p>
-<p class="p1"><span class="Apple-converted-space">  </span>async function start() {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// reset</p>
-<p class="p1"><span class="Apple-converted-space">    </span>recvBuffer = {};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>historyMap = {};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>rowsMap = {};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>charts = {};</p>
-<p class="p1"><span class="Apple-converted-space">    </span>tableBody.innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>await startWs();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>startRenderLoop();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>setStatus("Çalışıyor", "green");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// start on load</p>
-<p class="p1"><span class="Apple-converted-space">  </span>start();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// allow UI controls to change render interval and limit</p>
-<p class="p1"><span class="Apple-converted-space">  </span>intervalInput.addEventListener("change", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>startRenderLoop();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p1"><span class="Apple-converted-space">  </span>limitInput.addEventListener("change", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// will take effect on next render tick</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// helper: graceful unload</p>
-<p class="p1"><span class="Apple-converted-space">  </span>window.addEventListener("beforeunload", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>try { if (ws) ws.close(); } catch(e){}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><br></p>
-<p class="p1">})();</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <h1>💹 KuCoin Live Dashboard</h1>
+  <p>Canlı fiyat akışı (BTC, ETH, SOL, KCS, DOGE)</p>
+
+  <table id="priceTable">
+    <thead>
+      <tr>
+        <th>Parite</th>
+        <th>Fiyat</th>
+        <th>Zaman</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const ws = new WebSocket("wss://ws-api.kucoin.com/endpoint");
+
+    const symbols = ["BTC-USDT", "ETH-USDT", "SOL-USDT", "KCS-USDT", "DOGE-USDT"];
+    const tableBody = document.querySelector("#priceTable tbody");
+
+    ws.onopen = () => {
+      console.log("✅ KuCoin WS bağlantısı kuruldu.");
+      ws.send(JSON.stringify({
+        id: Date.now(),
+        type: "subscribe",
+        topic: "/market/ticker:BTC-USDT,ETH-USDT,SOL-USDT,KCS-USDT,DOGE-USDT",
+        privateChannel: false,
+        response: true
+      }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.topic && data.data) {
+        const ticker = data.data;
+        const symbol = data.topic.split(":")[1];
+        const price = parseFloat(ticker.price).toFixed(4);
+        const time = new Date().toLocaleTimeString();
+
+        const existingRow = document.getElementById(symbol);
+        if (existingRow) {
+          existingRow.cells[1].textContent = price;
+          existingRow.cells[2].textContent = time;
+        } else {
+          const row = document.createElement("tr");
+          row.id = symbol;
+          row.innerHTML = `<td>${symbol}</td><td>${price}</td><td>${time}</td>`;
+          tableBody.appendChild(row);
+        }
+      }
+    };
+
+    ws.onerror = (err) => console.error("❌ WS hata:", err);
+    ws.onclose = () => console.warn("⚠️ WS bağlantısı kapandı, yeniden bağlanıyor...");
+  </script>
 </body>
 </html>
